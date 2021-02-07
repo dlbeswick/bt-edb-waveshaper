@@ -25,8 +25,6 @@ struct _BtEdbPropertiesSimple {
   GArray* props;
 };
 
-G_DEFINE_TYPE(BtEdbPropertiesSimple, btedb_properties_simple, G_TYPE_OBJECT);
-
 typedef struct {
   GParamSpec* pspec;
   void* var;
@@ -38,6 +36,9 @@ gboolean btedb_properties_simple_get(const BtEdbPropertiesSimple* self, GParamSp
 	
 	if (pspec_var->pspec->name == pspec->name) {
 	  switch (pspec_var->pspec->value_type) {
+	  case G_TYPE_BOOLEAN:
+		g_value_set_boolean(value, *(gint*)pspec_var->var);
+		break;
 	  case G_TYPE_INT:
 		g_value_set_int(value, *(gint*)pspec_var->var);
 		break;
@@ -68,6 +69,9 @@ gboolean btedb_properties_simple_set(const BtEdbPropertiesSimple* self, GParamSp
 	
 	if (pspec_var->pspec == pspec) {
 	  switch (pspec_var->pspec->value_type) {
+	  case G_TYPE_BOOLEAN:
+		(*(gint*)pspec_var->var) = g_value_get_boolean(value);
+		break;
 	  case G_TYPE_INT:
 		(*(gint*)pspec_var->var) = g_value_get_int(value);
 		break;
@@ -103,25 +107,13 @@ void btedb_properties_simple_add(BtEdbPropertiesSimple* self, const char* prop_n
   g_array_append_val(self->props, pspec_var);
 }
 
-void btedb_properties_simple_finalize(GObject* const obj) {
-  BtEdbPropertiesSimple* const self = (BtEdbPropertiesSimple*)obj;
-  
+void btedb_properties_simple_free(BtEdbPropertiesSimple* self) {
   g_array_unref(self->props);
-  
-  G_OBJECT_CLASS(btedb_properties_simple_parent_class)->finalize(obj);
-}
-
-void btedb_properties_simple_class_init(BtEdbPropertiesSimpleClass* const klass) {
-  GObjectClass* const gobject_class = (GObjectClass*)klass;
-  gobject_class->finalize = btedb_properties_simple_finalize;
-}
-
-void btedb_properties_simple_init(BtEdbPropertiesSimple* const self) {
-  self->props = g_array_new(FALSE, FALSE, sizeof(PspecVar));
 }
 
 BtEdbPropertiesSimple* btedb_properties_simple_new(GObject* owner) {
-  BtEdbPropertiesSimple* const self = (BtEdbPropertiesSimple*)g_object_new(btedb_properties_simple_get_type(), NULL);
-  self->owner = owner;
-  return self;
+  BtEdbPropertiesSimple* result = g_malloc(sizeof(BtEdbPropertiesSimple));
+  result->props = g_array_new(FALSE, FALSE, sizeof(PspecVar));
+  result->owner = owner;
+  return result;
 }

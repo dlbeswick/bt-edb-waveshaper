@@ -185,8 +185,9 @@ static void btedb_waveshaper_class_init(BtEdbWaveshaperClass* const klass) {
     aclass->get_property = get_property;
     aclass->dispose = dispose;
 
+    // Note: variables will not be set to default values unless G_PARAM_CONSTRUCT is given.
     const GParamFlags flags =
-      (GParamFlags)(G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS);
+      (GParamFlags)(G_PARAM_READWRITE | GST_PARAM_CONTROLLABLE | G_PARAM_STATIC_STRINGS | G_PARAM_CONSTRUCT);
 
     guint idx = 1;
     g_object_class_install_property(
